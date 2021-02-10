@@ -1,0 +1,56 @@
+{
+	"name" : "Texture Swap",
+	"attributes": [
+		{
+			"name" : "Enabled",
+			"type" : "Boolean",
+			"connection" : "Input",
+			"editable" : false
+		},
+		{
+			"name" : "Done",
+			"type" : "Boolean",
+			"connection" : "Output",
+			"editable" : false		
+		},
+		{
+			"name" : "Texture",
+            "type" : "Texture",
+			"connection" : "None",
+			"editable" : true
+		}
+
+	],
+	"script":"
+var modelComponent = null;
+var textureToSwap;
+
+function init() {
+	textureToSwap = this.attribute('Texture');
+	
+}
+
+function start() {
+    modelComponent = this.entity().component('3D Model');
+}
+
+function update(dt) {
+
+}
+
+function signal(name, value) {
+    if (name == 'Enabled') {
+        //SWAP:
+        if (textureToSwap && value == true) {
+            modelComponent.setTexture(textureToSwap);
+			
+			//Emit signal to indicate the node finished
+            this.emitSignal('Done', true);
+        }
+
+	}
+}
+
+    "
+
+}
