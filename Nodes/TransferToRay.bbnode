@@ -1,0 +1,111 @@
+{
+	"name" : "Transfer To Ray",
+	"attributes": [
+		{
+			"name" : "Enabled",
+			"type" : "Boolean",
+			"connection" : "Input",
+			"editable" : false
+		},
+		{
+			"name" : "Up",
+			"type" : "Boolean",
+			"connection" : "Output",
+			"editable" : false		
+		},
+		{
+			"name" : "Down",
+			"type" : "Boolean",
+			"connection" : "Output",
+			"editable" : false		
+		},
+		{
+			"name" : "Move",
+			"type" : "Boolean",
+			"connection" : "Output",
+			"editable" : false		
+		},
+		{
+			"name" : "Position Offset",
+            "type" : "Vector3D",
+			"connection" : "None",
+			"editable" : true
+		}
+
+	],
+	"script":"
+
+let enabled;
+let positionOffset;
+let touchDown;
+
+function init() {
+    this.enableTouch();
+    positionOffset = this.attribute('Position Offset');
+
+}
+
+function start(){
+ 
+}
+
+function update(dt) {	
+	if (enabled && touchDown) {
+
+	} 
+ 
+}
+
+function signal(name, value) {
+	if (name == 'Enabled') {
+        enabled = value; 
+    }
+ 
+}
+
+function updateScreenToWorldPosition(scene, entity, pt) {
+	let ray = scene.camera().screenRay(pt);
+	let rtst = scene.rayTest(
+    	    ray.origin,
+	        ray.origin.add(ray.direction.scale(100))
+    	);
+    	
+    if (rtst && rtst.length > 0) {
+	    for (let i = 0; i < rtst.length; ++i) {
+	        let hit = rtst[i];
+	        if (hit.entity.name() !== entity.name()) {
+	        	entity.setPosition(hit.hitPoint.x + positionOffset.x, hit.hitPoint.y + positionOffset.y, hit.hitPoint.z + positionOffset.z);
+	        	
+	        }
+	    }
+    }		
+
+}
+
+component.touchBegan = function touchBegan(point) {
+
+	if (enabled) {
+		updateScreenToWorldPosition(this.scene(), this.entity(), point);						
+	    this.emitSignal('Down', true);
+	} 
+
+}
+
+component.touchMove = function touchMove(point) {
+	if (enabled) {
+		updateScreenToWorldPosition(this.scene(), this.entity(), point);
+	    this.emitSignal('Move', true);
+	} 
+   
+}
+
+component.touchEnded = function touchEnded(point) {
+	if (enabled) {
+		this.emitSignal('Up', true);
+	}	
+
+}    
+
+    "
+
+}

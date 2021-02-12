@@ -1,0 +1,116 @@
+{
+	"name" : "Lerp To Target",
+	"attributes": [
+		{
+			"name" : "Enabled",
+			"type" : "Boolean",
+			"connection" : "Input",
+			"editable" : false
+		},
+		{
+			"name" : "Disabled",
+			"type" : "Boolean",
+			"connection" : "Input",
+			"editable" : false
+		},
+		{
+			"name" : "Done",
+			"type" : "Boolean",
+			"connection" : "Output",
+			"editable" : false		
+		},
+		{
+			"name" : "Target Asset",
+            "type" : "Asset",
+			"connection" : "None",
+			"editable" : true
+		},
+		{
+			"name" : "Target Offset",
+            "type" : "Vector3D",
+			"connection" : "None",
+			"editable" : true
+		},
+		{
+			"name" : "Lerp Speed",
+            "type" : "Number",
+			"connection" : "None",
+			"editable" : true
+		},
+		{
+			"name" : "Stop Distance",
+            "type" : "Number",
+			"connection" : "None",
+			"editable" : true
+		}
+
+	],
+	"script":"
+let targetName;
+let lerpSpeed;
+let stopDistance;
+let targetOffset;
+let target;
+let distance;
+let enabled;
+let stopSignal;
+
+function init() {
+    lerpSpeed = this.attribute('Lerp Speed');
+    stopDistance = this.attribute('Stop Distance');
+    targetOffset = this.attribute('Target Offset');
+        
+	//Get the asset to be spawned
+	let asset = this.attribute('Target Asset');
+	
+	//Check we have an asset
+	if(asset == null) {
+		error('Asset to spawn does not exist');
+		return;
+	}    
+    
+    targetName = asset.name();
+    target = this.scene().findFirst(targetName);
+
+}
+
+function start() {
+ 
+}
+
+function update(dt) {	
+    if (!enabled) {
+        return;
+    } 
+	if (target) {
+		distance = this.entity().position().distance(target.position().add(targetOffset));
+		
+		if (distance > stopDistance) {
+	        let pos = this.entity().position().lerp(target.position().add(targetOffset), lerpSpeed);
+	        this.entity().setPosition(pos.x, pos.y, pos.z);		
+	        stopSignal = false;	
+	        
+		} else {
+			if (!stopSignal) {
+				this.emitSignal('Done', true);
+				stopSignal = true;
+			}
+		}
+
+    }
+ 
+}
+
+function signal(name, value) {
+    if (name == 'Enabled') {
+        enabled = true; 
+        
+    } else if (name == 'Disabled') {
+        enabled = false; 
+    }
+    
+}
+
+    "
+
+}
