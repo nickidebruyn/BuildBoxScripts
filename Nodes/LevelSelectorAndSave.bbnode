@@ -1,0 +1,66 @@
+{
+	"name" : "Level Selector And Save",
+	"attributes": [
+		{
+			"name" : "Enabled",
+			"type" : "Boolean",
+			"connection" : "Input",
+			"editable" : false
+		},
+		{
+			"name" : "Next",
+			"type" : "Boolean",
+			"connection" : "Input",
+			"editable" : false
+		},
+		{
+			"name" : "Maximum Levels",
+            "type" : "Number",
+			"connection" : "None",
+			"editable" : true
+		}
+
+	],
+	"script":"
+var _increased = false;
+var storage;
+var maxLevel = 1;
+
+function init(){
+	storage = Settings;
+	maxLevel = this.attribute('Maximum Levels');
+}
+function update(dt){}
+
+function signal(name, value){
+	if(name == 'Enabled'){
+		//Let's load the storage from file
+		Settings.levelID = storage['PLAYER_LEVEL'];
+		
+		if(Settings.levelID === undefined){
+			Settings.levelID = 1;
+		}
+		
+		//Do the max check
+		if(Settings.levelID > maxLevel) {
+			Settings.levelID = 1;
+		}
+		
+		this.scene().addLevel(String(Settings.levelID));
+	}
+	else if(name == 'Next' && !_increased){
+		_increased = true;
+		Settings.levelID += 1;
+		
+				//Do the max check
+		if(Settings.levelID > maxLevel) {
+			Settings.levelID = 1;
+		}
+		
+		storage['PLAYER_LEVEL'] = Settings.levelID;
+		
+	}
+}	
+"
+
+}

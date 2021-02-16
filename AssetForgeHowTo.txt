@@ -1,0 +1,9 @@
+How to convert a model from asset forge to buildbox:
+1. Design the moddel in AssetForge.
+2. Export the model to DAE format.
+3. Import the model into Blender.
+4. Switch to Edit Mode in blender and remove all double vertices.
+5. Go to the Materials Tool.
+6. Select each material as a mesh and press P to parent the mesh. Do this for all Materials.
+7. Delete the main model.
+8. Export model as fbx ASCII format.
