@@ -1,0 +1,97 @@
+{
+	"name" : "Distance Sensor",
+	"attributes": [
+		{
+			"name" : "Enabled",
+			"type" : "Boolean",
+			"connection" : "Input",
+			"editable" : false
+		},
+		{
+			"name" : "Sleep",
+			"type" : "Boolean",
+			"connection" : "Output",
+			"editable" : false		
+		},
+		{
+			"name" : "Detected",
+			"type" : "Boolean",
+			"connection" : "Output",
+			"editable" : false		
+		},		
+		{
+			"name" : "Target Asset",
+            "type" : "Asset",
+			"connection" : "None",
+			"editable" : true
+		},
+		{
+			"name" : "Detect Distance",
+            "type" : "Number",
+			"connection" : "None",
+			"editable" : true
+		}
+
+	],
+	"script":"
+let targetName;
+let detectDistance;
+let target;
+let distance;
+let enabled;
+let state = 0;
+
+function init() {
+    detectDistance = this.attribute('Detect Distance');
+        
+	//Get the asset to be spawned
+	let asset = this.attribute('Target Asset');
+	
+	//Check we have an asset
+	if(asset == null) {
+		error('Asset to spawn does not exist in Distance Sensor');
+		return;
+	}    
+    
+    targetName = asset.name();
+    target = this.scene().findFirst(targetName);
+
+}
+
+function start() {
+ 
+}
+
+function update(dt) {	
+    if (!enabled) {
+        return;
+    } 
+	if (target) {
+		distance = this.entity().position().distance(target.position());
+		
+		if (distance < detectDistance) {
+			if (state != 1) {
+				state = 1;
+				this.emitSignal('Detected', true);
+			}
+	        
+	        
+		} else {
+			if (state != 0) {
+				this.emitSignal('Sleep', true);
+				state = 0;
+			}
+		}
+
+    }
+ 
+}
+
+function signal(name, value) {
+    if (name == 'Enabled') {
+        enabled = value; 
+    }
+}
+    "
+
+}
