@@ -90,6 +90,10 @@ function update(dt) {
 function signal(name, value) {
     if (name == 'Enabled') {
         enabled = value; 
+        if (!enabled) {
+            this.emitSignal('Detected', false);
+            this.emitSignal('Sleep', false);
+        }
     }
 }
     "
