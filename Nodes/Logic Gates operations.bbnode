@@ -1,0 +1,109 @@
+{
+	"name" : "Logic Gates operations",
+	"attributes": [	
+		{
+			"name" : "Input 1",
+			"type" : "Boolean",
+			"connection" : "Input",
+			"editable" : false		
+		},
+		{
+			"name" : "Input 2",
+			"type" : "Boolean",
+			"connection" : "Input",
+			"editable" : false		
+		},
+		{
+			"name" : "Output",
+			"type" : "Boolean",
+			"connection" : "Output",
+			"editable" : false
+		},
+		{
+			"name" : "Logic Gates operation",
+			"type" : "Dropdown",
+			"value": {
+				"default": "kAND",
+				"options": {
+					"AND": "kAND",
+					"OR": "kOR",
+					"XOR": "kXOR",
+					"NAND ": "kNAND",
+					"NOR": "kNOR",
+					"XNOR": "kXNOR"
+				}
+			},
+			"connection" : "None",
+			"editable" : true
+		}
+
+	],
+	"script": "
+let logicOperation;
+let inOneTriggered;
+let inTwoTriggered;
+
+let A;
+let B;
+function init(){
+	logicOperation = this.attribute('Logic Gates operation');
+	log(logicOperation);
+	inOneTriggered = inTwoTriggered = false;
+	A = B = null;
+	ExecuteOperationCommand(true, true)
+}
+
+function start(){
+
+}
+
+function update(dt){
+
+}
+
+function signal(name, value){
+	if(name == \"Input 1\" && !inOneTriggered){
+		inOneTriggered = true;
+		A = value;
+	}
+	
+	if(name == \"Input 2\" && !inTwoTriggered){
+		inTwoTriggered = true;
+		B = value;
+	}
+	
+	if(inOneTriggered && inTwoTriggered){
+		ExecuteOperationCommand(A,B);
+	}
+}
+
+function ExecuteOperationCommand(inOne, inTwo){
+	inOneTriggered = inTwoTriggered = false;
+	A = B = null;
+	switch(logicOperation){
+		case \"kAND\":{
+			component.emitSignal('Output', (inOne && inTwo));
+		}break;
+		case \"kOR\":{
+			component.emitSignal('Output', (inOne || inTwo));
+		}break;
+		case \"kXOR\":{
+			component.emitSignal('Output', (!inOne || !inTwo));
+		}break;
+		case \"kNAND\":{
+			component.emitSignal('Output', !(inOne && inTwo));
+		}break;
+		case \"kNOR\":{
+			component.emitSignal('Output', !(inOne || inTwo));
+		}break;
+		case \"kXNOR\":{
+			component.emitSignal('Output', !(!inOne || !inTwo));
+		}break;
+		default:
+		break;
+	}
+}
+
+	"
+
+}

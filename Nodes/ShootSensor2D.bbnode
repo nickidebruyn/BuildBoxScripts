@@ -1,0 +1,125 @@
+{
+	"name" : "Shoot Sensor 2D",
+	"attributes": [
+		{
+			"name" : "Enabled",
+			"type" : "Boolean",
+			"connection" : "Input",
+			"editable" : false
+		},
+		{
+			"name" : "Sleep",
+			"type" : "Boolean",
+			"connection" : "Output",
+			"editable" : false		
+		},
+		{
+			"name" : "Detected",
+			"type" : "Boolean",
+			"connection" : "Output",
+			"editable" : false		
+		},		
+		{
+			"name" : "Target Asset",
+            "type" : "Asset",
+			"connection" : "None",
+			"editable" : true
+		},
+		{
+			"name" : "Detect Distance",
+            "type" : "Number",
+			"connection" : "None",
+			"editable" : true
+		},
+		{
+			"name" : "Height Offset",
+            "type" : "Number",
+			"connection" : "None",
+			"editable" : true
+		}
+		
+
+	],
+	"script":"
+
+let targetName;
+let detectDistance;
+let heightOffset;
+let target;
+let distance;
+let enabled;
+let state = 0;
+let heightDif = 0;
+let facing = false;
+
+function init() {
+    detectDistance = this.attribute('Detect Distance');
+    heightOffset = this.attribute('Height Offset');
+        
+	//Get the asset to be spawned
+	let asset = this.attribute('Target Asset');
+	
+	//Check we have an asset
+	if(asset == null) {
+		error('Asset to spawn does not exist in Distance Sensor');
+		return;
+	}    
+    
+    targetName = asset.name();
+    target = this.scene().findFirst(targetName);
+
+}
+
+function start() {
+ 
+}
+
+function update(dt) {	
+    if (!enabled) {
+        return;
+    } 
+	if (target) {
+		distance = this.entity().worldPosition().distance(target.worldPosition());
+		heightDif = this.entity().worldPosition().y - target.worldPosition().y;
+				
+		//log("Target x = " + target.worldPosition().x + ", entity x=" + this.entity().worldPosition().x);
+		//log("X Rot = " + this.entity().worldRotation().x);
+		if (this.entity().worldRotation().x <= 1 && target.worldPosition().x > this.entity().worldPosition().x) {
+			facing = true;
+		} else if (this.entity().worldRotation().x > 1 && target.worldPosition().x < this.entity().worldPosition().x) {
+			facing = true;
+		} else {
+			facing = false;
+		}
+		
+		if (facing && (distance < detectDistance) && (heightDif < heightOffset && heightDif > -heightOffset)) {
+			if (state != 1) {
+				state = 1;
+				this.emitSignal('Detected', true);
+			}
+	        
+	        
+		} else {
+			if (state != 0) {
+				this.emitSignal('Sleep', true);
+				state = 0;
+			}
+		}
+
+    }
+ 
+}
+
+function signal(name, value) {
+    if (name == 'Enabled') {
+        enabled = value; 
+        if (!enabled) {
+            this.emitSignal('Detected', false);
+            this.emitSignal('Sleep', false);
+        }
+    }
+}
+    
+    "
+
+}

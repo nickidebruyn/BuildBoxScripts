@@ -1,0 +1,69 @@
+{
+	"name" : "Teleport Target",
+	"attributes": [
+		{
+			"name" : "Enabled",
+			"type" : "Boolean",
+			"connection" : "Input",
+			"editable" : false
+		},
+		{
+			"name" : "Done",
+			"type" : "Boolean",
+			"connection" : "Output",
+			"editable" : false		
+		},
+		{
+			"name" : "Asset",
+            "type" : "Asset",
+			"connection" : "None",
+			"editable" : true
+		}
+
+	],
+	"script":"
+function init(){
+
+}
+
+function start(){
+
+}
+
+function update(dt){
+
+}
+
+function signal(name, value, sender, source){
+	//Check the incoming signals
+	if(name == 'Enabled' && value){
+		//Get the asset to be spawned
+		let asset = this.attribute('Asset');
+
+		//Check we have an asset
+		if(asset == null) {
+			error('Asset to transport does not exist');
+			return;
+		}
+
+		let pos = this.entity().worldPosition();
+		let targetName = asset.name();
+		let ent = this.scene().findFirst(targetName)
+		
+		if (ent) {
+			ent.setPosition(pos.x, pos.y, pos.z);			
+		}
+	
+		//Send a signal to indicate asset has been spawned
+		this.emitSignal('Done', true);
+	}
+
+}
+
+function requested(name, arg, sender){
+    return this;
+}
+
+    "
+
+}
